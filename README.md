@@ -2,7 +2,7 @@
 
 Elixir is a modern and responsive wallpaper website built using the MERN stack (MongoDB, Express.js, React, Node.js). It allows users to browse, search, and download wallpapers through a clean and intuitive interface.
 
-## **🚀 Features**
+## **⭐ Features**
 
 🖼 Wallpaper Collection – Browse a wide range of high-quality wallpapers.
 📱 Responsive UI – Fully optimized for desktop, tablet, and mobile devices.
