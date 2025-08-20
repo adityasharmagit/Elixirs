@@ -27,6 +27,7 @@ Other Tools: Git & GitHub, npm packages
 ### Clone the repository
 
 git clone <https://github.com/adityasharmagit/elixirs.git>
+
 cd elixir
 
 ### Install dependencies
