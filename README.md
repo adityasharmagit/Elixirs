@@ -20,11 +20,7 @@ Other Tools: Git & GitHub, npm packages
 
 ## 📸 Screenshot
 
-![Landing Page](img/Elixir.png)
-
-## 📸 Logo
-
-![Landing Page](img/Elixir-logo.png)
+![Landing Page](img/ElixirHome.png)
 
 ## ⚡ Installation & Setup
 
