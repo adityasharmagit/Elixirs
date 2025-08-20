@@ -22,6 +22,10 @@ Other Tools: Git & GitHub, npm packages
 
 ![Landing Page](img/Elixir.png)
 
+## 📸 Logo
+
+![Landing Page](img/Elixir-logo.png)
+
 ## ⚡ Installation & Setup
 
 ### Clone the repository
