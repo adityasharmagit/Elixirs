@@ -22,7 +22,7 @@ Other Tools: Git & GitHub, npm packages
 
 ![Landing Page](img/Elixir.png)
 
-⚡ Installation & Setup
+## ⚡ Installation & Setup
 
 ### Clone the repository
 
