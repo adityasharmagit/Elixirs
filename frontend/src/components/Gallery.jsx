@@ -6,6 +6,7 @@ import CategoryFilter from './include/CategoryFilter';
 const Gallery = ({ excludeId, category: propCategory }) => {
     const { wallpapers, fetchWallpaper, isLoadingGallery, error } = useGalleryStore();
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [searchTerm, setSearchTerm] = useState("");
 
     const categoryColors = {
         Nature: "bg-green-500",
@@ -44,7 +45,8 @@ const Gallery = ({ excludeId, category: propCategory }) => {
     const filteredWallpapers = wallpapers.filter((wall) => {
         const isNotExcluded = excludeId ? wall._id !== excludeId : true;
         const isCategoryMatch = selectedCategory === "All" || wall.category === selectedCategory;
-        return isNotExcluded && isCategoryMatch;
+        const isSearchMatch = wall.title.toLowerCase().includes(searchTerm.toLowerCase());
+        return isNotExcluded && isCategoryMatch && isSearchMatch;
     });
 
     const sortedWallpapers = filteredWallpapers.sort(
@@ -63,6 +65,22 @@ const Gallery = ({ excludeId, category: propCategory }) => {
             >
                 "From Pixels to Perfection — Explore the Gallery,,
             </h1>
+            
+            <div className="mb-6 flex justify-start">
+                <input
+                    type="text"
+                    placeholder="Search wallpapers by title..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full md:w-1/2 px-4 py-2 rounded-2xl 
+                        border border-white/10 
+                        bg-white/10 backdrop-blur-md 
+                        focus:outline-none focus:ring-1 focus:ring-primary 
+                        text-primary placeholder-primary
+                        shadow-lg"
+                />
+            </div>
+
             {!propCategory && (
                 <CategoryFilter 
                     selectedCategory={selectedCategory}
