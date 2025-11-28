@@ -4,7 +4,7 @@ const SplineViewer2 = () => {
     useEffect(() => {
         const script = document.createElement("script");
         script.type = "module";
-        script.src = "https://unpkg.com/@splinetool/viewer@1.10.48/build/spline-viewer.js";
+        script.src = "https://unpkg.com/@splinetool/viewer@1.12.5/build/spline-viewer.js";
         document.head.appendChild(script);
     }, []);
 
