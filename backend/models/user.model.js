@@ -19,8 +19,14 @@ const UserSchema = new mongoose.Schema({
         minlength: 6,
     },
     profilePic: {
-        type: String,
-        default: "",
+        url: {
+            type: String,
+            default: "",
+        },
+        public_id: {
+            type: String,
+            default: "",
+        },
     },
 }, { timestamps: true }
 );
