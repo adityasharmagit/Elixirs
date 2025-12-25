@@ -1,7 +1,7 @@
 const generateToken = require("../config/jwt.js");
 const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs");
-const cloudinary = require("cloudinary").v2;
+const { cloudinary } = require("../middleware/upload.middleware.js");
 
 //* Signup
 const signup = async (req, res) => {
