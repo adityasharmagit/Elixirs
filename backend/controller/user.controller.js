@@ -1,7 +1,14 @@
 const generateToken = require("../config/jwt.js");
 const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs");
-const upload = require("../middleware/upload.middleware.js");
+const cloudinary = require("cloudinary").v2;
+
+const getPublicIdFromUrl = (url) => {
+    const parts = url.split("/");
+    const filename = parts.pop().split(".")[0];
+    const folder = parts.slice(parts.indexOf("upload")+1).join("/");
+    return `${folder}/${filename}`;
+}
 
 //* Signup
 const signup = async (req, res) => {
@@ -11,7 +18,7 @@ const signup = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        if (password.length <= 6) {
+        if (password.length < 8) {
             return res.status(400).json({ message: "Password must be at least 8 characters" });
         }
 
@@ -92,15 +99,17 @@ const updateProfile = async (req, res) => {
             return res.status(400).json({ message: "Profile picture is required" });
         }
 
-        const imageUrl = req.file.path;
+        const user = await User.findById(userId);
 
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { profilePic: imageUrl },
-            { new: true }
-        );
+        if (user.profilePic) {
+            const oldPublicId = getPublicIdFromUrl(user.profilePic);
+            await cloudinary.uploader.destroy(oldPublicId);
+        }
 
-        res.status(200).json(updatedUser);
+        user.profilePic = req.file.path;
+        await user.save();
+
+        res.status(200).json(user);
     } catch (error) {
         console.log("Error in update profile: ", error);
         res.status(500).json({ message: "Internal Server Error!" });
@@ -121,10 +130,17 @@ const deleteUser = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        const deletedUser = await User.findByIdAndDelete(userId);
-        if (!deletedUser) {
+        const user = await User.findById(userId);
+        if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        if (user.profilePic) {
+            const publicId = getPublicIdFromUrl(user.profilePic);
+            await cloudinary.uploader.destroy(publicId);
+        }
+
+        await User.findByIdAndDelete(userId);
 
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
