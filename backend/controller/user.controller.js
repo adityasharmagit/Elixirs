@@ -86,25 +86,43 @@ const logout = (req, res) => {
 //* Update Profile
 const updateProfile = async (req, res) => {
     try {
+        const { profilePic } = req.body;
         const userId = req.user._id;
+        
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        const updateData = {};
 
         if (!req.file) {
             return res.status(400).json({ message: "Profile picture is required" });
         }
 
-        const user = await User.findById(userId);
+        if (profilePic) {
+            const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+                folder: "Elixir's",
+            });
 
-        if (user.profilePic?.public_id) {
-            await cloudinary.uploader.destroy(user.profilePic.public_id);
+            if (user.profilePicPublicId) {
+                await cloudinary.uploader.destroy(user.profilePicPublicId);
+            }
+
+            updateData.profilePic = uploadResponse.secure_url;
+            updateData.profilePicPublicId = uploadResponse.public_id;
         }
 
-        user.profilePic = {
-            url: req.file.path,
-            public_id: req.file.public_id,
-        };
-        await user.save();
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
-        res.status(200).json(user);
+        res.status(200).json({
+            _id: updatedUser._id,
+            uniqueId: updatedUser.uniqueId,
+            fullName: updatedUser.username,
+            email: updatedUser.email,
+            profilePic: updatedUser.profilePic,
+        });
+
     } catch (error) {
         console.log("Error in update profile: ", error);
         res.status(500).json({ message: "Internal Server Error!" });
@@ -130,8 +148,16 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (user.profilePic?.public_id) {
-            await cloudinary.uploader.destroy(user.profilePic.public_id);
+        if (user.profilePic) {
+            try {
+                const parts = user.profilePic.split("/");
+                const publicIdWitExt = parts.slice(-2).join("/");
+                const publicId = publicIdWitExt.replace(/\.[^/.]+$/, "");
+
+                await cloudinary.uploader.destroy(publicId);
+            } catch (error) {
+                console.log("Failed to delete Cloudinary profile pic:", err.message);
+            }
         }
 
         await User.findByIdAndDelete(userId);
