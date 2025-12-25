@@ -86,24 +86,41 @@ const logout = (req, res) => {
 //* Update Profile
 const updateProfile = async (req, res) => {
     try {
+        const { profilePic } = req.body;
         const userId = req.user._id;
 
-        if (!req.file || !req.file.path) {
-            return res.status(400).json({ message: "Profile picture is required" });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
         }
 
-        const imageUrl = req.file.path;
+        const updateData = {};
 
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { profilePic: imageUrl },
-            { new: true }
-        );
+        if (profilePic) {
+            const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+                folder: "Elixir's",
+            });
 
-        res.status(200).json(updatedUser);
+            if (user.profilePicPublicId) {
+                await cloudinary.uploader.destroy(user.profilePicPublicId);
+            }
+
+            updateData.profilePic = uploadResponse.secure_url;
+            updateData.profilePicPublicId = uploadResponse.public_id;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+        res.status(200).json({
+            _id: updatedUser._id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            profilePic: updatedUser.profilePic,
+        });
+
     } catch (error) {
         console.log("Error in update profile: ", error);
-        res.status(500).json({ message: "Internal Server Error!" });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
