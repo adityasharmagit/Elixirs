@@ -3,12 +3,6 @@ const User = require("../models/user.model.js");
 const bcrypt = require("bcryptjs");
 const cloudinary = require("cloudinary").v2;
 
-const getPublicIdFromUrl = (url) => {
-    const uploadIndex = url.indexOf("/upload/");
-    const path = url.substring(uploadIndex + 8);
-    return path.replace(/v\d+\//, "").replace(/\.[^/.]+$/, "");
-}
-
 //* Signup
 const signup = async (req, res) => {
     const { username, email, password } = req.body;
@@ -100,12 +94,14 @@ const updateProfile = async (req, res) => {
 
         const user = await User.findById(userId);
 
-        if (user.profilePic) {
-            const oldPublicId = getPublicIdFromUrl(user.profilePic);
-            await cloudinary.uploader.destroy(oldPublicId);
+        if (user.profilePic?.public_id) {
+            await cloudinary.uploader.destroy(user.profilePic.public_id);
         }
 
-        user.profilePic = req.file.path;
+        user.profilePic = {
+            url: req.file.path,
+            public_id: req.file.filename,
+        };
         await user.save();
 
         res.status(200).json(user);
@@ -134,9 +130,8 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (user.profilePic) {
-            const publicId = getPublicIdFromUrl(user.profilePic);
-            await cloudinary.uploader.destroy(publicId);
+        if (user.profilePic?.public_id) {
+            await cloudinary.uploader.destroy(user.profilePic.public_id);
         }
 
         await User.findByIdAndDelete(userId);
