@@ -99,11 +99,9 @@ const updateProfile = async (req, res) => {
 
         const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
             folder: "Elixir's",
+            public_id: `profile_${userId}`,
+            overwrite: true,
         });
-
-        if (user.profilePicPublicId) {
-            await cloudinary.uploader.destroy(user.profilePicPublicId);
-        }
 
         user.profilePic = uploadResponse.secure_url;
         user.profilePicPublicId = uploadResponse.public_id;
@@ -132,6 +130,7 @@ const checkAuth = (req, res) => {
     }
 };
 
+//*Delete User
 const deleteUser = async (req, res) => {
     try {
         const userId = req.user._id;
