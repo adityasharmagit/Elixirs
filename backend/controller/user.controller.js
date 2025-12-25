@@ -88,7 +88,7 @@ const updateProfile = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        if (!req.file || !req.file.path) {
+        if (!req.file) {
             return res.status(400).json({ message: "Profile picture is required" });
         }
 
@@ -100,7 +100,7 @@ const updateProfile = async (req, res) => {
 
         user.profilePic = {
             url: req.file.path,
-            public_id: req.file.filename,
+            public_id: req.file.public_id,
         };
         await user.save();
 
