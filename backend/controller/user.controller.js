@@ -4,10 +4,9 @@ const bcrypt = require("bcryptjs");
 const cloudinary = require("cloudinary").v2;
 
 const getPublicIdFromUrl = (url) => {
-    const parts = url.split("/");
-    const filename = parts.pop().split(".")[0];
-    const folder = parts.slice(parts.indexOf("upload")+1).join("/");
-    return `${folder}/${filename}`;
+    const uploadIndex = url.indexOf("/upload/");
+    const path = url.substring(uploadIndex + 8);
+    return path.replace(/v\d+\//, "").replace(/\.[^/.]+$/, "");
 }
 
 //* Signup
