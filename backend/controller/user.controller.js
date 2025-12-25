@@ -117,7 +117,6 @@ const updateProfile = async (req, res) => {
 
         res.status(200).json({
             _id: updatedUser._id,
-            uniqueId: updatedUser.uniqueId,
             fullName: updatedUser.username,
             email: updatedUser.email,
             profilePic: updatedUser.profilePic,
