@@ -88,35 +88,22 @@ const updateProfile = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        if (!req.file) {
+        if (!req.file || !req.file.path) {
             return res.status(400).json({ message: "Profile picture is required" });
         }
 
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        const imageUrl = req.file.path;
 
-        const uploadResponse = await cloudinary.uploader.upload(req.file.path, {
-            folder: "Elixir's",
-            public_id: `profile_${userId}`,
-            overwrite: true,
-        });
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilePic: imageUrl },
+            { new: true }
+        );
 
-        user.profilePic = uploadResponse.secure_url;
-        user.profilePicPublicId = uploadResponse.public_id;
-        await user.save();
-
-        res.status(200).json({
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-            profilePic: user.profilePic,
-        });
-
+        res.status(200).json(updatedUser);
     } catch (error) {
-        console.log("Error in update profile:", error);
-        res.status(500).json({ message: "Internal server error" });
+        console.log("Error in update profile: ", error);
+        res.status(500).json({ message: "Internal Server Error!" });
     }
 };
 
@@ -130,7 +117,6 @@ const checkAuth = (req, res) => {
     }
 };
 
-//*Delete User
 const deleteUser = async (req, res) => {
     try {
         const userId = req.user._id;
