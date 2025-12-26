@@ -88,19 +88,31 @@ const updateProfile = async (req, res) => {
     try {
         const userId = req.user._id;
 
-        if (!req.file || !req.file.path) {
-            return res.status(400).json({ message: "Profile picture is required" });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not fount" });
         }
 
-        const imageUrl = req.file.path;
+        const updateData = {};
 
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { profilePic: imageUrl },
-            { new: true }
-        );
+        if (req.file) {
+            if (user.profilePicPublicId) {
+                await cloudinary.uploader.destroy(user.profilePicPublicId);
+            }
 
-        res.status(200).json(updatedUser);
+            updateData.profilePic = req.file.path;
+            updateData.profilePicPublicId = req.file.filename;
+        }
+        
+        const updateUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+        res.status(200).json({
+            _id: updateUser._id,
+            username: updateUser.username,
+            email: updateUser.email,
+            profilePic: updateUser.profilePic,
+        });
+
     } catch (error) {
         console.log("Error in update profile: ", error);
         res.status(500).json({ message: "Internal Server Error!" });
@@ -120,16 +132,26 @@ const checkAuth = (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const userId = req.user._id;
+        const user = await User.findById(userId);
 
-        const deletedUser = await User.findByIdAndDelete(userId);
-        if (!deletedUser) {
-            return res.status(404).json({ message: "User not found" });
+        if (!user) {
+            return res.status(404).json({ message: "User not found!" });
         }
+
+        if (user.profilePicPublicId) {
+            try {
+                await cloudinary.uploader.destroy(user.profilePicPublicId);
+            } catch (error) {
+                console.log("Cloudinary delete failed: ", error.message);
+            }
+        }
+
+        await User.findByIdAndDelete(userId);
 
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
         console.log("Error deleting user:", error.message);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Internal Server error" });
     }
 };
 
