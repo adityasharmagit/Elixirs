@@ -14,6 +14,7 @@ import About from "./pages/AboutPage";
 import Landing from "./pages/LandingPage";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Snowfall from "react-snowfall";
 
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
@@ -54,6 +55,16 @@ const App = () => {
 
   return (
     <div data-theme={theme}>
+      <Snowfall
+        color="gray"
+        style={{
+          position: "fixed",
+          width: "100vw",
+          height: "100vh",
+          zIndex: 9999,
+          pointerEvents: "none",
+        }}
+      />
       {!hideNavBar && <Navbar/>}
       <GlitterCursor/>
 
